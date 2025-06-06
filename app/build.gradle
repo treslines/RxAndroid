@@ -36,8 +36,8 @@ dependencies {
     implementation libs.constraintlayout
 
     // Rx Java
-    implementation libs.rxjava
     implementation libs.rxandroid
+    implementation libs.rxjava
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
