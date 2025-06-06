@@ -4,7 +4,6 @@ package com.example.rxandroid;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,16 +50,25 @@ public class MainActivity extends AppCompatActivity {
         // myObservable = Observable.just(greetings);
         // to emit from array use fromArray
         // myObservable = Observable.fromArray(greetings);
-        // to emit from array use fromArray
-        myObservable = Observable.create(new ObservableOnSubscribe<Student>() {
-            @Override
-            public void subscribe(@NonNull ObservableEmitter<Student> emitter) throws Throwable {
-                ArrayList<Student> studentArrayList = getStudents();
-                for (Student s: studentArrayList) {
-                    emitter.onNext(s);
-                }
-                emitter.onComplete();
+        // to emit from array use create operator
+//        myObservable = Observable.create(new ObservableOnSubscribe<Student>() {
+//            @Override
+//            public void subscribe(@NonNull ObservableEmitter<Student> emitter) throws Throwable {
+//                ArrayList<Student> studentArrayList = getStudents();
+//                for (Student s: studentArrayList) {
+//                    emitter.onNext(s);
+//                }
+//                emitter.onComplete();
+//            }
+//        });
+
+        // to emit from array use create operator
+        myObservable = Observable.create(emitter -> {
+            ArrayList<Student> studentArrayList = getStudents();
+            for (Student s: studentArrayList) {
+                emitter.onNext(s);
             }
+            emitter.onComplete();
         });
 
         // cleaner way to add and subscribe to observables
