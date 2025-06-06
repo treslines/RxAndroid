@@ -12,14 +12,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,40 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
         // init text view from activity_main.xml
         textView = findViewById(R.id.grettings);
-
-
         // instantiate an Observable
         myObservable = Observable.just(greetings);
-
-        // instruct the observable to process streaming on schedulers.io
-        myObservable.subscribeOn(Schedulers.io());
-        myObservable.observeOn(AndroidSchedulers.mainThread());
-
-
-        // instantiate an Observer
-//        myObserver = new Observer<>() {
-//            @Override
-//            public void onSubscribe(@NonNull Disposable d) {
-//                Log.i(TAG, "onSubscribe");
-//                myDisposable = d;
-//            }
-//
-//            @Override
-//            public void onNext(@NonNull String s) {
-//                Log.i(TAG, "onNext");
-//                textView.setText(s);
-//            }
-//
-//            @Override
-//            public void onError(@NonNull Throwable e) {
-//                Log.i(TAG, "onError");
-//            }
-//
-//            @Override
-//            public void onComplete() {
-//                Log.i(TAG, "onComplete");
-//            }
-//        };
 
         myObserver = new DisposableObserver<>() {
             @Override
@@ -99,17 +65,17 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // add multiple observers to the composite disposable
-        compositeDisposable.add(myObserver);
-        // subscribe to the observable
-        myObservable.subscribe(myObserver);
-
+        // cleaner way to add and subscribe to observables
+        compositeDisposable.add(myObservable
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(myObserver));
 
         myObserver2 = new DisposableObserver<>() {
             @Override
             public void onNext(@NonNull String s) {
                 Log.i(TAG, "onNext");
-                Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -123,11 +89,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // add multiple observers to the composite disposable
-        compositeDisposable.add(myObserver2);
-        // subscribe to the observable
-        myObservable.subscribe(myObserver2);
-
+        // cleaner way to add and subscribe to observables
+        compositeDisposable.add(myObservable
+                .subscribeWith(myObserver2));
 
     }
 
@@ -140,10 +104,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //myDisposable.dispose();
-        //myObserver.dispose();
-        //myObserver2.dispose();
-
         // instead of disposing every observer one by one, just use the composite disposable
         compositeDisposable.clear();
     }
