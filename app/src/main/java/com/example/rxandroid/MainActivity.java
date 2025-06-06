@@ -15,6 +15,7 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 
@@ -23,8 +24,9 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "RxAndroid MainActivity";
     private String greetings = "Hello from RxJava";
     private Observable<String> myObservable;
-    private Observer<String> myObserver;
-    private Disposable myDisposable;
+    //private Observer<String> myObserver;
+    private DisposableObserver<String> myObserver;
+    //private Disposable myDisposable;
     private TextView textView;
 
     @Override
@@ -51,13 +53,31 @@ public class MainActivity extends AppCompatActivity {
 
 
         // instantiate an Observer
-        myObserver = new Observer<>() {
-            @Override
-            public void onSubscribe(@NonNull Disposable d) {
-                Log.i(TAG, "onSubscribe");
-                myDisposable = d;
-            }
+//        myObserver = new Observer<>() {
+//            @Override
+//            public void onSubscribe(@NonNull Disposable d) {
+//                Log.i(TAG, "onSubscribe");
+//                myDisposable = d;
+//            }
+//
+//            @Override
+//            public void onNext(@NonNull String s) {
+//                Log.i(TAG, "onNext");
+//                textView.setText(s);
+//            }
+//
+//            @Override
+//            public void onError(@NonNull Throwable e) {
+//                Log.i(TAG, "onError");
+//            }
+//
+//            @Override
+//            public void onComplete() {
+//                Log.i(TAG, "onComplete");
+//            }
+//        };
 
+        myObserver = new DisposableObserver<>() {
             @Override
             public void onNext(@NonNull String s) {
                 Log.i(TAG, "onNext");
@@ -74,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "onComplete");
             }
         };
+
+
         // subscribe to the observable
         myObservable.subscribe(myObserver);
 
@@ -89,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myDisposable.dispose();
+        //myDisposable.dispose();
+        myObserver.dispose();
     }
 }
