@@ -12,9 +12,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -22,9 +26,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "RxAndroid MainActivity";
-    private Integer[] greetings = {1,2,3,4,5,6,7,8,9,10};
-    private Observable<Integer> myObservable;
-    private DisposableObserver<Integer> myObserver;
+    private Observable<Student> myObservable;
+    private DisposableObserver<Student> myObserver;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     //private Disposable myDisposable;
     private TextView textView;
@@ -49,7 +52,16 @@ public class MainActivity extends AppCompatActivity {
         // to emit from array use fromArray
         // myObservable = Observable.fromArray(greetings);
         // to emit from array use fromArray
-        myObservable = Observable.range(1, 20);
+        myObservable = Observable.create(new ObservableOnSubscribe<Student>() {
+            @Override
+            public void subscribe(@NonNull ObservableEmitter<Student> emitter) throws Throwable {
+                ArrayList<Student> studentArrayList = getStudents();
+                for (Student s: studentArrayList) {
+                    emitter.onNext(s);
+                }
+                emitter.onComplete();
+            }
+        });
 
         // cleaner way to add and subscribe to observables
         compositeDisposable.add(myObservable
@@ -72,12 +84,12 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.clear();
     }
 
-    private DisposableObserver<Integer> getObserver(){
+    private DisposableObserver<Student> getObserver(){
         myObserver = new DisposableObserver<>() {
             @Override
-            public void onNext(@NonNull Integer i) {
-                Log.i(TAG, "onNext" + i);
-                textView.setText(String.valueOf(i));
+            public void onNext(@NonNull Student i) {
+                Log.i(TAG, "onNext" + i.getEmail());
+                textView.setText(i.getEmail());
             }
 
             @Override
@@ -91,5 +103,14 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         return myObserver;
+    }
+
+    private ArrayList<Student> getStudents() {
+        ArrayList<Student> students = new ArrayList<>();
+        students.add(new Student("Hans","hans@email.com",23,"22.03.2024"));
+        students.add(new Student("maia","maia@email.com",21,"14.05.2024"));
+        students.add(new Student("pedro","pedro@email.com",27,"1.1.2024"));
+        students.add(new Student("victor","victor@email.com",34,"11.1.2024"));
+        return students;
     }
 }
