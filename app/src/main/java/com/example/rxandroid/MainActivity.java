@@ -4,6 +4,7 @@ package com.example.rxandroid;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -26,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private Observable<String> myObservable;
     //private Observer<String> myObserver;
     private DisposableObserver<String> myObserver;
+    private DisposableObserver<String> myObserver2;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
     //private Disposable myDisposable;
     private TextView textView;
 
@@ -95,9 +99,34 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
+        // add multiple observers to the composite disposable
+        compositeDisposable.add(myObserver);
         // subscribe to the observable
         myObservable.subscribe(myObserver);
+
+
+        myObserver2 = new DisposableObserver<>() {
+            @Override
+            public void onNext(@NonNull String s) {
+                Log.i(TAG, "onNext");
+                Toast.makeText(getApplicationContext(),s,Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.i(TAG, "onError");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.i(TAG, "onComplete");
+            }
+        };
+
+        // add multiple observers to the composite disposable
+        compositeDisposable.add(myObserver2);
+        // subscribe to the observable
+        myObservable.subscribe(myObserver2);
 
 
     }
@@ -112,6 +141,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         //myDisposable.dispose();
-        myObserver.dispose();
+        //myObserver.dispose();
+        //myObserver2.dispose();
+
+        // instead of disposing every observer one by one, just use the composite disposable
+        compositeDisposable.clear();
     }
 }
