@@ -22,11 +22,10 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "RxAndroid MainActivity";
-    private String greetings = "Hello from RxJava";
+    private String[] greetings = {"Hello"," from ","RxJava"};
     private Observable<String> myObservable;
     //private Observer<String> myObserver;
     private DisposableObserver<String> myObserver;
-    private DisposableObserver<String> myObserver2;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     //private Disposable myDisposable;
     private TextView textView;
@@ -45,53 +44,14 @@ public class MainActivity extends AppCompatActivity {
         // init text view from activity_main.xml
         textView = findViewById(R.id.grettings);
         // instantiate an Observable
-        myObservable = Observable.just(greetings);
-
-        myObserver = new DisposableObserver<>() {
-            @Override
-            public void onNext(@NonNull String s) {
-                Log.i(TAG, "onNext");
-                textView.setText(s);
-            }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-                Log.i(TAG, "onError");
-            }
-
-            @Override
-            public void onComplete() {
-                Log.i(TAG, "onComplete");
-            }
-        };
+        // this is not the same as passing greetings to it.
+        myObservable = Observable.just("Hello", " from ", "RxJava");
 
         // cleaner way to add and subscribe to observables
         compositeDisposable.add(myObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(myObserver));
-
-        myObserver2 = new DisposableObserver<>() {
-            @Override
-            public void onNext(@NonNull String s) {
-                Log.i(TAG, "onNext");
-                Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onError(@NonNull Throwable e) {
-                Log.i(TAG, "onError");
-            }
-
-            @Override
-            public void onComplete() {
-                Log.i(TAG, "onComplete");
-            }
-        };
-
-        // cleaner way to add and subscribe to observables
-        compositeDisposable.add(myObservable
-                .subscribeWith(myObserver2));
+                .subscribeWith(getObserver()));
 
     }
 
@@ -106,5 +66,26 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         // instead of disposing every observer one by one, just use the composite disposable
         compositeDisposable.clear();
+    }
+
+    private DisposableObserver<String> getObserver(){
+        myObserver = new DisposableObserver<>() {
+            @Override
+            public void onNext(@NonNull String s) {
+                Log.i(TAG, "onNext" + s);
+                textView.setText(s);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.i(TAG, "onError");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.i(TAG, "onComplete");
+            }
+        };
+        return myObserver;
     }
 }
