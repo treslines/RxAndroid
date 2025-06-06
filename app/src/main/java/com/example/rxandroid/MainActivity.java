@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableEmitter;
-import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -44,23 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
         // init text view from activity_main.xml
         textView = findViewById(R.id.grettings);
-        // instantiate an Observable
-
-        // to emit from array use fromArray
-        // myObservable = Observable.just(greetings);
-        // to emit from array use fromArray
-        // myObservable = Observable.fromArray(greetings);
-        // to emit from array use create operator
-//        myObservable = Observable.create(new ObservableOnSubscribe<Student>() {
-//            @Override
-//            public void subscribe(@NonNull ObservableEmitter<Student> emitter) throws Throwable {
-//                ArrayList<Student> studentArrayList = getStudents();
-//                for (Student s: studentArrayList) {
-//                    emitter.onNext(s);
-//                }
-//                emitter.onComplete();
-//            }
-//        });
 
         // to emit from array use create operator
         myObservable = Observable.create(emitter -> {
@@ -75,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.add(myObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                        // see how to use the map operator to transform data before they get emmited
+                        .map(s -> new Student(s.getName().toUpperCase(), s.getEmail(), s.getAge(), s.getRegistrationDate()))
                 .subscribeWith(getObserver()));
 
     }
@@ -96,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
         myObserver = new DisposableObserver<>() {
             @Override
             public void onNext(@NonNull Student i) {
-                Log.i(TAG, "onNext" + i.getEmail());
-                textView.setText(i.getEmail());
+                Log.i(TAG, "onNext" + i.getName());
+                textView.setText(i.getName());
             }
 
             @Override
