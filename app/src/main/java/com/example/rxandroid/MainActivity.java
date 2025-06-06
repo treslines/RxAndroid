@@ -22,10 +22,9 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private final static String TAG = "RxAndroid MainActivity";
-    private String[] greetings = {"Hello"," from ","RxJava"};
-    private Observable<String> myObservable;
-    //private Observer<String> myObserver;
-    private DisposableObserver<String> myObserver;
+    private Integer[] greetings = {1,2,3,4,5,6,7,8,9,10};
+    private Observable<Integer> myObservable;
+    private DisposableObserver<Integer> myObserver;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     //private Disposable myDisposable;
     private TextView textView;
@@ -44,8 +43,13 @@ public class MainActivity extends AppCompatActivity {
         // init text view from activity_main.xml
         textView = findViewById(R.id.grettings);
         // instantiate an Observable
-        // this is not the same as passing greetings to it.
-        myObservable = Observable.just("Hello", " from ", "RxJava");
+
+        // to emit from array use fromArray
+        // myObservable = Observable.just(greetings);
+        // to emit from array use fromArray
+        // myObservable = Observable.fromArray(greetings);
+        // to emit from array use fromArray
+        myObservable = Observable.range(1, 20);
 
         // cleaner way to add and subscribe to observables
         compositeDisposable.add(myObservable
@@ -68,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
         compositeDisposable.clear();
     }
 
-    private DisposableObserver<String> getObserver(){
+    private DisposableObserver<Integer> getObserver(){
         myObserver = new DisposableObserver<>() {
             @Override
-            public void onNext(@NonNull String s) {
-                Log.i(TAG, "onNext" + s);
-                textView.setText(s);
+            public void onNext(@NonNull Integer i) {
+                Log.i(TAG, "onNext" + i);
+                textView.setText(String.valueOf(i));
             }
 
             @Override
