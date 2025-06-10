@@ -12,13 +12,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableSource;
+import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.functions.Predicate;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "RxAndroid MainActivity";
     private Observable<Student> myObservable;
     private DisposableObserver<Student> myObserver;
+    //private Observer<Integer> myObserver;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     //private Disposable myDisposable;
     private TextView textView;
@@ -54,21 +59,59 @@ public class MainActivity extends AppCompatActivity {
             emitter.onComplete();
         });
 
+        // Buffer operators
+//        myObservable = Observable.range(1,20);
+//        myObservable
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .buffer(4)
+//                .skip(6) // skips emissions of first 6 items
+//                .skipLast(4) // skips emissions of last 4 items
+//                .distinct() // filters out duplicates
+//                .filter(new Predicate<List<Student>>() {
+//                    @Override
+//                    public boolean test(List<Student> students) throws Throwable {
+//                        // my check condition goes in here
+//                        return false;
+//                    }
+//                })
+//                .subscribe(new Observer<List<Integer>>() {
+//                    @Override
+//                    public void onSubscribe(@NonNull Disposable d) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(@NonNull List<Integer> integers) {
+//                        Log.i(TAG, "onNext: " + integers.toString());
+//                    }
+//
+//                    @Override
+//                    public void onError(@NonNull Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//                    }
+//                });
+
         // cleaner way to add and subscribe to observables
         compositeDisposable.add(myObservable
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                         // see how to use the map operator to transform data before they get emmited
                         //.map(s -> new Student(s.getName().toUpperCase(), s.getEmail(), s.getAge(), s.getRegistrationDate()))
-//                .flatMap(new Function<Student, ObservableSource<Student>>() {
-//                    @Override
-//                    public ObservableSource<Student> apply(Student student) throws Throwable {
-//                        Student student1 = new Student("Müller","hans@email.com",28,"05.02.2025");
-//                        Student student2 = new Student("Ueli","hans@email.com",35,"26.04.2023");
-//
-//                        return Observable.just(student, student1, student2);
-//                    }
-//                })        
+                .flatMap(new Function<Student, ObservableSource<Student>>() {
+                    @Override
+                    public ObservableSource<Student> apply(Student student) throws Throwable {
+                        Student student1 = new Student("Müller","hans@email.com",28,"05.02.2025");
+                        Student student2 = new Student("Ueli","hans@email.com",35,"26.04.2023");
+
+                        return Observable.just(student, student1, student2);
+                    }
+                })
                 .concatMap(new Function<Student, ObservableSource<Student>>() {
                     @Override
                     public ObservableSource<Student> apply(Student student) throws Throwable {
@@ -79,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .subscribeWith(getObserver()));
+
 
     }
 
