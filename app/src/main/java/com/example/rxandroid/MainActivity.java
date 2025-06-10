@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
@@ -57,7 +59,25 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                         // see how to use the map operator to transform data before they get emmited
-                        .map(s -> new Student(s.getName().toUpperCase(), s.getEmail(), s.getAge(), s.getRegistrationDate()))
+                        //.map(s -> new Student(s.getName().toUpperCase(), s.getEmail(), s.getAge(), s.getRegistrationDate()))
+//                .flatMap(new Function<Student, ObservableSource<Student>>() {
+//                    @Override
+//                    public ObservableSource<Student> apply(Student student) throws Throwable {
+//                        Student student1 = new Student("Müller","hans@email.com",28,"05.02.2025");
+//                        Student student2 = new Student("Ueli","hans@email.com",35,"26.04.2023");
+//
+//                        return Observable.just(student, student1, student2);
+//                    }
+//                })        
+                .concatMap(new Function<Student, ObservableSource<Student>>() {
+                    @Override
+                    public ObservableSource<Student> apply(Student student) throws Throwable {
+                        Student student1 = new Student("Müller","hans@email.com",28,"05.02.2025");
+                        Student student2 = new Student("Ueli","hans@email.com",35,"26.04.2023");
+
+                        return Observable.just(student, student1, student2);
+                    }
+                })
                 .subscribeWith(getObserver()));
 
     }
