@@ -25,6 +25,7 @@ import io.reactivex.rxjava3.functions.Function;
 import io.reactivex.rxjava3.functions.Predicate;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.AsyncSubject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
         // init text view from activity_main.xml
         textView = findViewById(R.id.grettings);
+
+        // Async Subject emits only the last entry in the stream
+        asyncSubjectDemo1();
 
         // to emit from array use create operator
         myObservable = Observable.create(emitter -> {
@@ -143,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         myObserver = new DisposableObserver<>() {
             @Override
             public void onNext(@NonNull Student i) {
-                Log.i(TAG, "onNext" + i.getName());
+                Log.i(TAG, "onNext " + i.getName());
                 textView.setText(i.getName());
             }
 
@@ -160,6 +164,31 @@ public class MainActivity extends AppCompatActivity {
         return myObserver;
     }
 
+    private void asyncSubjectDemo1(){
+        Observable<String> observable = Observable.just("JAVA","KOTLIN","XML","JSON")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        AsyncSubject<String> asyncSubject = AsyncSubject.create();
+
+        observable.subscribe(asyncSubject);
+        asyncSubject.subscribe(getFirstObserver());
+        asyncSubject.subscribe(getSecondObserver());
+        asyncSubject.subscribe(getThrirdObserver());
+    }
+
+    private Observer<String> getFirstObserver(){
+        return createObserver("First");
+    }
+
+    private Observer<String> getSecondObserver(){
+        return createObserver("Second");
+    }
+
+    private Observer<String> getThrirdObserver(){
+        return createObserver("Third");
+    }
+
     private ArrayList<Student> getStudents() {
         ArrayList<Student> students = new ArrayList<>();
         students.add(new Student("Hans","hans@email.com",23,"22.03.2024"));
@@ -167,5 +196,29 @@ public class MainActivity extends AppCompatActivity {
         students.add(new Student("pedro","pedro@email.com",27,"1.1.2024"));
         students.add(new Student("victor","victor@email.com",34,"11.1.2024"));
         return students;
+    }
+
+    private <T> Observer<T> createObserver(String observerName){
+        return new Observer<T>() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+                Log.i(TAG, observerName + " Observer onNext");
+            }
+
+            @Override
+            public void onNext(@NonNull T t) {
+                Log.i(TAG, observerName + " Observer onNext " + t);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+                Log.i(TAG, observerName + " Observer onNext");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.i(TAG, observerName + " Observer onComplete");
+            }
+        };
     }
 }
