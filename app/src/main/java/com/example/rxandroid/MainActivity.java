@@ -12,7 +12,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -22,10 +21,12 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Function;
-import io.reactivex.rxjava3.functions.Predicate;
 import io.reactivex.rxjava3.observers.DisposableObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.AsyncSubject;
+import io.reactivex.rxjava3.subjects.BehaviorSubject;
+import io.reactivex.rxjava3.subjects.PublishSubject;
+import io.reactivex.rxjava3.subjects.ReplaySubject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,7 +53,28 @@ public class MainActivity extends AppCompatActivity {
         textView = findViewById(R.id.grettings);
 
         // Async Subject emits only the last entry in the stream
-        asyncSubjectDemo1();
+        //asyncSubjectDemo1();
+
+        // see how async subjects behaves since it implements observable and observer itself
+        //asyncSubjectDemo2();
+
+        // bahavior subject emits the most recent items all subsequent items
+        //behaviorSubjectDemo1();
+
+        // bahavior subject emits the most recent items all subsequent items
+        //behaviorSubjectDemo2();
+
+        // emits all items at the time of subscription
+        //publishSubjectDemo1();
+
+        // emits all items at the time of subscription
+        //publishSubjectDemo2();
+
+        // it emits all items independently of the time it subscribes on
+        //replaySubjectDemo1();
+
+        // it emits all items independently of the time it subscribes on
+        replaySubjectDemo2();
 
         // to emit from array use create operator
         myObservable = Observable.create(emitter -> {
@@ -164,6 +186,20 @@ public class MainActivity extends AppCompatActivity {
         return myObserver;
     }
 
+    private void asyncSubjectDemo2(){
+        // extends observable and observer
+        AsyncSubject<String> asyncSubject = AsyncSubject.create();
+
+        asyncSubject.subscribe(getFirstObserver());
+        asyncSubject.onNext("JAVA");
+        asyncSubject.onNext("KOTLIN");
+        asyncSubject.onNext("XML");
+        asyncSubject.subscribe(getSecondObserver());
+        asyncSubject.onNext("JSON");
+        asyncSubject.onComplete();
+        asyncSubject.subscribe(getThrirdObserver());
+    }
+
     private void asyncSubjectDemo1(){
         Observable<String> observable = Observable.just("JAVA","KOTLIN","XML","JSON")
                 .subscribeOn(Schedulers.io())
@@ -175,6 +211,87 @@ public class MainActivity extends AppCompatActivity {
         asyncSubject.subscribe(getFirstObserver());
         asyncSubject.subscribe(getSecondObserver());
         asyncSubject.subscribe(getThrirdObserver());
+    }
+
+    private void behaviorSubjectDemo1(){
+        Observable<String> observable = Observable.just("JAVA","KOTLIN","XML","JSON")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        BehaviorSubject<String> behaviorSubject = BehaviorSubject.create();
+
+        observable.subscribe(behaviorSubject);
+        behaviorSubject.subscribe(getFirstObserver());
+        behaviorSubject.subscribe(getSecondObserver());
+        behaviorSubject.subscribe(getThrirdObserver());
+    }
+
+    private void behaviorSubjectDemo2(){
+        // extends observable and observer
+        BehaviorSubject<String> behaviorSubject = BehaviorSubject.create();
+
+        behaviorSubject.subscribe(getFirstObserver());
+        behaviorSubject.onNext("JAVA");
+        behaviorSubject.onNext("KOTLIN");
+        behaviorSubject.onNext("XML");
+        behaviorSubject.subscribe(getSecondObserver());
+        behaviorSubject.onNext("JSON");
+        behaviorSubject.onComplete();
+        behaviorSubject.subscribe(getThrirdObserver());
+    }
+
+    private void publishSubjectDemo1(){
+        Observable<String> observable = Observable.just("JAVA","KOTLIN","XML","JSON")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        PublishSubject<String> publishSubject = PublishSubject.create();
+
+        observable.subscribe(publishSubject);
+        publishSubject.subscribe(getFirstObserver());
+        publishSubject.subscribe(getSecondObserver());
+        publishSubject.subscribe(getThrirdObserver());
+    }
+
+    private void publishSubjectDemo2(){
+        // extends observable and observer
+        PublishSubject<String> publishSubject = PublishSubject.create();
+
+        publishSubject.subscribe(getFirstObserver());
+        publishSubject.onNext("JAVA");
+        publishSubject.onNext("KOTLIN");
+        publishSubject.onNext("XML");
+        publishSubject.subscribe(getSecondObserver());
+        publishSubject.onNext("JSON");
+        publishSubject.onComplete();
+        publishSubject.subscribe(getThrirdObserver());
+    }
+
+    private void replaySubjectDemo1(){
+        Observable<String> observable = Observable.just("JAVA","KOTLIN","XML","JSON")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        ReplaySubject<String> replaySubject = ReplaySubject.create();
+
+        observable.subscribe(replaySubject);
+        replaySubject.subscribe(getFirstObserver());
+        replaySubject.subscribe(getSecondObserver());
+        replaySubject.subscribe(getThrirdObserver());
+    }
+
+    private void replaySubjectDemo2(){
+        // extends observable and observer
+        ReplaySubject<String> replaySubject = ReplaySubject.create();
+
+        replaySubject.subscribe(getFirstObserver());
+        replaySubject.onNext("JAVA");
+        replaySubject.onNext("KOTLIN");
+        replaySubject.onNext("XML");
+        replaySubject.subscribe(getSecondObserver());
+        replaySubject.onNext("JSON");
+        replaySubject.onComplete();
+        replaySubject.subscribe(getThrirdObserver());
     }
 
     private Observer<String> getFirstObserver(){
