@@ -38,6 +38,7 @@ dependencies {
     // Rx Java
     implementation libs.rxandroid
     implementation libs.rxjava
+    implementation libs.rxbinding
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
