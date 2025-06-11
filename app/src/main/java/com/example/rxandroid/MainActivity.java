@@ -19,8 +19,10 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.jakewharton.rxbinding4.view.RxView;
 import com.jakewharton.rxbinding4.widget.RxTextView;
+import com.jakewharton.rxbinding4.widget.TextViewTextChangeEvent;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -68,13 +70,15 @@ public class MainActivity extends AppCompatActivity {
         inpEdit = findViewById(R.id.inpEdit);
         btnClear = findViewById(R.id.btnClear);
 
-        Disposable inpEditRx = RxTextView.textChanges(inpEdit)
-                .subscribe(new Consumer<CharSequence>() {
-                    @Override
-                    public void accept(CharSequence charSequence) throws Throwable {
-                        txtEdit.setText(charSequence);
-                    }
-                });
+        // remember to dispose it on destroy, better use composite Disposable in case of more than one disposables
+//        Disposable inpEditRx = RxTextView.textChanges(inpEdit)
+//                .subscribe(new Consumer<CharSequence>() {
+//                    @Override
+//                    public void accept(CharSequence charSequence) throws Throwable {
+//                        txtEdit.setText(charSequence);
+//                    }
+//                });
+        // remember to dispose it on destroy, better use composite Disposable in case of more than one disposables
         Disposable btnClearRx = RxView.clicks(btnClear)
                 .subscribe(new Consumer<Unit>() {
                     @Override
@@ -83,6 +87,33 @@ public class MainActivity extends AppCompatActivity {
                         txtEdit.setText("");
                     }
                 });
+
+        // How to apply different filter methods on RxJava
+        compositeDisposable.add(
+                RxTextView.textChangeEvents(inpEdit)
+                        .skipInitialValue()
+                        .debounce(300, TimeUnit.MILLISECONDS)
+                        .distinctUntilChanged()
+                        .observeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new DisposableObserver<TextViewTextChangeEvent>() {
+                            @Override
+                            public void onNext(@NonNull TextViewTextChangeEvent textViewTextChangeEvent) {
+                                txtEdit.setText(textViewTextChangeEvent.getText());
+                            }
+
+                            @Override
+                            public void onError(@NonNull Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        })
+        );
+
 
         // normal android way without using RxJava binding
 //        inpEdit.addTextChangedListener(new TextWatcher() {
