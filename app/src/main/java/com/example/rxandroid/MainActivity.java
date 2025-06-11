@@ -1,8 +1,14 @@
 package com.example.rxandroid;
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -36,8 +42,11 @@ public class MainActivity extends AppCompatActivity {
     //private Observer<Integer> myObserver;
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     //private Disposable myDisposable;
-    private TextView textView;
+    private TextView txtEdit;
+    private EditText inpEdit;
+    private Button btnClear;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +59,35 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // init text view from activity_main.xml
-        textView = findViewById(R.id.grettings);
+        txtEdit = findViewById(R.id.txtTitle);
+        inpEdit = findViewById(R.id.inpEdit);
+        btnClear = findViewById(R.id.btnClear);
+
+        // normal android way without using RxJava binding
+        inpEdit.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                txtEdit.setText(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                txtEdit.setText("");
+            }
+        });
+
 
         // Async Subject emits only the last entry in the stream
         //asyncSubjectDemo1();
@@ -170,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNext(@NonNull Student i) {
                 Log.i(TAG, "onNext " + i.getName());
-                textView.setText(i.getName());
+                txtEdit.setText(i.getName());
             }
 
             @Override
