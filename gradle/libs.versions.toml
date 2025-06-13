@@ -10,6 +10,7 @@ constraintlayout = "2.2.1"
 rxandroid = "3.0.2"
 rxjava = "3.1.10"
 rxbinding = "4.0.0"
+leakcanary = "2.14"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -22,7 +23,11 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 rxjava = { group = "io.reactivex.rxjava3", name = "rxjava", version.ref = "rxjava" }
 rxandroid = { group = "io.reactivex.rxjava3", name = "rxandroid", version.ref = "rxandroid" }
 rxbinding = { group = "com.jakewharton.rxbinding4", name = "rxbinding", version.ref = "rxbinding" }
+leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+
+
+
 

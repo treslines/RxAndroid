@@ -40,6 +40,8 @@ dependencies {
     implementation libs.rxjava
     implementation libs.rxbinding
 
+    debugImplementation libs.leakcanary
+
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
